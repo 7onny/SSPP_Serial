@@ -14,7 +14,7 @@
     <ProjectGuid>{DF2129B3-2E5D-46C1-9A57-0078206CB6EC}</ProjectGuid>
     <RootNamespace>VSHorn</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>Sequential</ProjectName>
+    <ProjectName>SSPP_MFC</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>

@@ -24,29 +24,29 @@ using namespace std;
 //---------------------Global Variables----------------------
 //float launch_time, end_time;
 
-float calcIx_time = 0;
-float calcIy_time = 0;
-float calcIt_time = 0;
-float vels_avg_time=0;
-float calc_vels_time=0;
-float print_ders_time=0;
-float compute_ders_time=0;
-float calc_diff_kernel_time=0;
-float diff_x_time=0;
-float diff_y_time=0;
-float diff_t_time=0;
-float readfiles_time=0;
-float writefiles_time=0;
-float read_and_smooth3D_time = 0;
-float convolve_Gaussian_time=0;
-float output_velocities_time=0;
-float calc_statistics_time=0;
-float PsiER_time=0;
-float norm_time=0;
-float difference_time=0;
-float threshold_time=0;
-float fmin_time=0;
-float rearrange_time=0;
+double calcIx_time = 0;
+double calcIy_time = 0;
+double calcIt_time = 0;
+double vels_avg_time=0;
+double calc_vels_time=0;
+double print_ders_time=0;
+double compute_ders_time=0;
+double calc_diff_kernel_time=0;
+double diff_x_time=0;
+double diff_y_time=0;
+double diff_t_time=0;
+double readfiles_time=0;
+double writefiles_time=0;
+double read_and_smooth3D_time = 0;
+double convolve_Gaussian_time=0;
+double output_velocities_time=0;
+double calc_statistics_time=0;
+double PsiER_time=0;
+double norm_time=0;
+double difference_time=0;
+double threshold_time=0;
+double fmin_time=0;
+double rearrange_time=0;
 
 int calcIx_count=0;
 int calcIy_count= 0;
@@ -389,7 +389,7 @@ int main(int argc, char **argv)
 }
 
 //----------------Utility functions-------------------------------
-void print_times(float total_elapsed_time){
+void print_times(double total_elapsed_time){
 	ofstream out("times.txt", ios::trunc);
 
 	out<<"\n--------------Execution Times (seconds)--------------------"<<endl;
@@ -488,8 +488,7 @@ void calcIx(float Ex[PIC_X][PIC_Y],float floatpic[FIVE][PIC_X][PIC_Y],int t)
 	//float floatpic[FIVE][PIC_X][PIC_Y];
 	//int t;
 {
-	//float launch_time=omp_get_wtime();
-	float launch_time=0.0;
+	double launch_time=omp_get_wtime();
 	calcIx_count++;
 
 	int i,j;
@@ -509,8 +508,7 @@ void calcIx(float Ex[PIC_X][PIC_Y],float floatpic[FIVE][PIC_X][PIC_Y],int t)
 			}
 		}
 
-	//float end_time=omp_get_wtime();
-	float end_time=0.0;
+	double end_time=omp_get_wtime();
 	calcIx_time+=end_time-launch_time;
 }
 
@@ -523,8 +521,7 @@ void calcIy(float Ey[PIC_X][PIC_Y],float floatpic[FIVE][PIC_X][PIC_Y],int t)
 	//float floatpic[FIVE][PIC_X][PIC_Y];
 	//int t;
 {
-	//double launch_time=omp_get_wtime();
-	double launch_time=0.0;
+	double launch_time=omp_get_wtime();
 	calcIy_count++;
 
 	int i,j;
@@ -544,8 +541,7 @@ void calcIy(float Ey[PIC_X][PIC_Y],float floatpic[FIVE][PIC_X][PIC_Y],int t)
 			}
 		}
 
-	//double end_time=omp_get_wtime();
-	double end_time=0.0;
+	double end_time=omp_get_wtime();
 	calcIy_time+=end_time-launch_time;
 }
 
@@ -557,8 +553,7 @@ void calcIt(float Et[PIC_X][PIC_Y],float floatpic[FIVE][PIC_X][PIC_Y],int t)
 	//float floatpic[FIVE][PIC_X][PIC_Y];
 	//int t;
 {
-	//double launch_time=omp_get_wtime();
-	double launch_time=0.0;
+	double launch_time=omp_get_wtime();
 	calcIt_count++;
 
 	int i,j;
@@ -578,8 +573,7 @@ void calcIt(float Et[PIC_X][PIC_Y],float floatpic[FIVE][PIC_X][PIC_Y],int t)
 			}
 		}
 
-	//double end_time=omp_get_wtime();
-	double end_time=0.0;
+	double end_time=omp_get_wtime();
 	calcIy_time+=end_time-launch_time;
 }
 
@@ -590,7 +584,7 @@ void calcIt(float Et[PIC_X][PIC_Y],float floatpic[FIVE][PIC_X][PIC_Y],int t)
 void vels_avg(float vels[PIC_X][PIC_Y][2],float ave[PIC_X][PIC_Y][2])
 	//float vels[PIC_X][PIC_Y][2],ave[PIC_X][PIC_Y][2];
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	vels_avg_count++;
 
 	int i,j;
@@ -606,7 +600,7 @@ void vels_avg(float vels[PIC_X][PIC_Y][2],float ave[PIC_X][PIC_Y][2])
 				(vels[i-1][j-1][1]+vels[i-1][j+1][1]+
 				vels[i+1][j+1][1]+vels[i+1][j-1][1])/12.0;
 		}
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	vels_avg_time+=end_time-launch_time;
 }
 
@@ -619,7 +613,7 @@ void calc_vels(float vels[PIC_X][PIC_Y][2],float vels1[PIC_X][PIC_Y][2],float Ex
 	//float vels[PIC_X][PIC_Y][2],vels1[PIC_X][PIC_Y][2];
 	//float Ex[PIC_X][PIC_Y],Ey[PIC_X][PIC_Y],Et[PIC_X][PIC_Y];
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	calc_vels_count++;
 
 	int i,j,k;
@@ -643,7 +637,7 @@ void calc_vels(float vels[PIC_X][PIC_Y][2],float vels1[PIC_X][PIC_Y][2],float Ex
 				printf("Velocity magnitude of %f at %d %d is over 5.0\n",mag,i,j) ;
 			}
 		}
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	calc_vels_time+=end_time-launch_time;
 }
 
@@ -655,7 +649,7 @@ void calc_vels(float vels[PIC_X][PIC_Y][2],float vels1[PIC_X][PIC_Y][2],float Ex
 void print_ders(float Ex[PIC_X][PIC_Y],float Ey[PIC_X][PIC_Y],float Et[PIC_X][PIC_Y])
 	//float Ex[PIC_X][PIC_Y],Ey[PIC_X][PIC_Y],Et[PIC_X][PIC_Y];
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	print_ders_count++;
 
 	int i,j;
@@ -680,7 +674,7 @@ void print_ders(float Ex[PIC_X][PIC_Y],float Ey[PIC_X][PIC_Y],float Et[PIC_X][PI
 		for(j=50;j<=60;j+=step) printf("%5.1f ",Et[i][j]);
 		printf("\n");
 	}
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	print_ders_time+=end_time-launch_time;
 }
 
@@ -697,7 +691,7 @@ void compute_ders(float Ix[PIC_X][PIC_Y],float Iy[PIC_X][PIC_Y],float It[PIC_X][
 	//float floatpic[PIC_T][PIC_X][PIC_Y];
 	//int n,pic_t,pic_x,pic_y;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	compute_ders_count++;
 
 	int i,j;
@@ -721,7 +715,7 @@ void compute_ders(float Ix[PIC_X][PIC_Y],float Iy[PIC_X][PIC_Y],float It[PIC_X][
 	printf("Spatio-Temporal Intensity Derivatives Computed\n");
 	fflush(stdout);
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	compute_ders_time+=end_time-launch_time;
 }
 
@@ -731,7 +725,7 @@ void compute_ders(float Ix[PIC_X][PIC_Y],float Iy[PIC_X][PIC_Y],float It[PIC_X][
 void calc_diff_kernel(float diff_kernel[5])
 	//float diff_kernel[5];
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	calc_diff_kernel_count++;
 
 	diff_kernel[0] = -1.0/12.0;
@@ -740,7 +734,7 @@ void calc_diff_kernel(float diff_kernel[5])
 	diff_kernel[3] = -8.0/12.0;
 	diff_kernel[4] = 1.0/12.0;
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	calc_diff_kernel_time+=end_time-launch_time;
 }
 
@@ -749,11 +743,8 @@ void calc_diff_kernel(float diff_kernel[5])
 Apply 1D real kernels in the x direction
 ************************************************************/
 float diff_x(float floatpic[PIC_T][PIC_X][PIC_Y],float kernel[5],int x,int y,int n){
-	double launch_time=0.0;
-	double end_time=0.0;
-	double aux=0.0;
-	//launch_time=omp_get_wtime();
-	diff_x_count=diff_x_count+1;
+	double launch_time=omp_get_wtime();
+	diff_x_count++;
 	
 	int i;
 	float sum;
@@ -764,9 +755,8 @@ float diff_x(float floatpic[PIC_T][PIC_X][PIC_Y],float kernel[5],int x,int y,int
 		sum += kernel[i+2]*floatpic[2][x+i][y];
 	}
 
-	//end_time=omp_get_wtime();
-	
-	aux=end_time-launch_time;
+	double end_time=omp_get_wtime();
+	double aux=end_time-launch_time;
 	diff_x_time=diff_x_time+aux;
 	return(sum);
 }
@@ -779,7 +769,7 @@ float diff_y(float floatpic[PIC_T][PIC_X][PIC_Y],float kernel[5],int x,int y,int
 	//float kernel[5];
 	//int x,y,n;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	diff_y_count++;
 
 	int i;
@@ -791,7 +781,7 @@ float diff_y(float floatpic[PIC_T][PIC_X][PIC_Y],float kernel[5],int x,int y,int
 		sum += kernel[i+2]*floatpic[2][x][y+i];
 	}
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	diff_y_time+=end_time-launch_time;
 	return(sum);
 }
@@ -805,7 +795,7 @@ float diff_t(float floatpic[PIC_T][PIC_X][PIC_Y],float kernel[5],int x,int y,int
 	//float kernel[5];
 	//int x,y,n;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	diff_t_count++;
 
 	int i;
@@ -817,7 +807,7 @@ float diff_t(float floatpic[PIC_T][PIC_X][PIC_Y],float kernel[5],int x,int y,int
 		sum += kernel[i+2]*floatpic[2+i][x][y];
 	}
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	diff_t_time+=end_time-launch_time;
 	return(sum);
 }
@@ -832,7 +822,7 @@ void readfiles(char path[100],char s[100],unsigned char pic[PIC_T][PIC_X][PIC_Y]
 	//unsigned char header[HEAD];
 	//unsigned char pic[PIC_T][PIC_X][PIC_Y];
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	readfiles_count++;
 
 	char fname[100];
@@ -882,7 +872,7 @@ void readfiles(char path[100],char s[100],unsigned char pic[PIC_T][PIC_X][PIC_Y]
 		fflush(stdout);
 	}
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	readfiles_time+=end_time-launch_time;
 } /* End of _readfiles */
 
@@ -897,7 +887,7 @@ void writefiles(char path[100],char s[100],unsigned char result[FIVE][PIC_X][PIC
 	//unsigned char result[FIVE][PIC_X][PIC_Y];
 	//unsigned char header[HEAD];
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	writefiles_count++;
 
 	char fname[100];
@@ -927,7 +917,7 @@ void writefiles(char path[100],char s[100],unsigned char result[FIVE][PIC_X][PIC
 		_close(fp);
 	}
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	writefiles_time+=end_time-launch_time;
 } /* End of writefiles */
 
@@ -944,7 +934,7 @@ void read_and_smooth3D(char path[100],char stem[100],float sigma,float floatpic[
 	//float floatpic[FIVE][PIC_X][PIC_Y];
 	//int start,end,middle;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	read_and_smooth3D_count++;
 
 	int fd,n,size,i,j,k,time,frame;
@@ -979,7 +969,7 @@ void read_and_smooth3D(char path[100],char stem[100],float sigma,float floatpic[
 	}
 	if(sigma!=0.0) printf("Input files smoothed\n");
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	read_and_smooth3D_time+=end_time-launch_time;
 }
 
@@ -988,7 +978,7 @@ void read_and_smooth3D(char path[100],char stem[100],float sigma,float floatpic[
 /************************************************************************/
 void convolve_Gaussian(unsigned char inpic[PIC_T][PIC_X][PIC_Y],float floatpic[FIVE][PIC_X][PIC_Y],unsigned char pic[FIVE][PIC_X][PIC_Y],float sigma,int pic_t,int pic_x,int pic_y,int start,int frame,int time)
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	convolve_Gaussian_count++;
 
 	float mask[100],term,product,sum;
@@ -1089,7 +1079,7 @@ void convolve_Gaussian(unsigned char inpic[PIC_T][PIC_X][PIC_Y],float floatpic[F
 	if(OUTPUT_SMOOTH) printf("End of Convolution\n");
 	fflush(stdout);
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	convolve_Gaussian_time+=end_time-launch_time;
 }
 
@@ -1102,7 +1092,7 @@ void output_velocities(int fdf,char s[100],float full_velocities[PIC_X][PIC_Y][2
 	//char s[100];
 	//int fdf,n;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	output_velocities_count++;
 
 	float x,y;
@@ -1165,7 +1155,7 @@ void output_velocities(int fdf,char s[100],float full_velocities[PIC_X][PIC_Y][2
 			no_vals/(1.0*(no_vals+no_novals))*100.0);
 		fflush(stdout);
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	output_velocities_time+=end_time-launch_time;
 }
 
@@ -1179,7 +1169,7 @@ void calc_statistics(float correct_vels[PIC_X][PIC_Y][2],int int_size_x,int int_
 					 //float correct_vels[PIC_X][PIC_Y][2],*min_angle,*max_angle;
 					 //int n,pic_x,pic_y,int_size_x,int_size_y;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	calc_statistics_count++;
 
 	int full_count,no_full_count,i,j,a,b,total_count;
@@ -1231,7 +1221,7 @@ void calc_statistics(float correct_vels[PIC_X][PIC_Y][2],int int_size_x,int int_
 		fflush(stdout);
 	}
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	calc_statistics_time+=end_time-launch_time;
 }
 
@@ -1241,7 +1231,7 @@ Full Image Velocity Angle Error
 float PsiER(float ve[2], float va[2])
 	//float ve[2],va[2];
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	PsiER_count++;
 
 	float nva;
@@ -1272,7 +1262,7 @@ float PsiER(float ve[2], float va[2])
 		printf("va=(%f,%f) ve=(%f,%f)\n",va[0],va[1],ve[0],ve[1]);
 	}
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	PsiER_time+=end_time-launch_time;
 	return r;
 }
@@ -1285,7 +1275,7 @@ float norm(float v[],int n)
 	//float v[];
 	//int n;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	norm_count++;
 
 	int i;
@@ -1295,7 +1285,7 @@ float norm(float v[],int n)
 		sum += (v[i]*v[i]);
 	sum = sqrt(sum);
 	
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	norm_time+=end_time-launch_time;
 	return sum;
 }
@@ -1307,7 +1297,7 @@ float difference(float v1[PIC_X][PIC_Y][2],float v2[PIC_X][PIC_Y][2],int pic_x,i
 	//float v1[PIC_X][PIC_Y][2],v2[PIC_X][PIC_Y][2];
 	//int pic_x,pic_y;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	difference_count++;
 
 	int i,j,n;
@@ -1325,7 +1315,7 @@ float difference(float v1[PIC_X][PIC_Y][2],float v2[PIC_X][PIC_Y][2],int pic_x,i
 		}
 	sum = sum/n;
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	difference_time+=end_time-launch_time;
 	return(sum);
 }
@@ -1340,7 +1330,7 @@ void threshold(float full_vels[PIC_X][PIC_Y][2],float Ix[PIC_X][PIC_Y],float Iy[
 	//float tau;
 	//int pic_x,pic_y;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	threshold_count++;
 
 	int i,j,count;
@@ -1363,23 +1353,23 @@ void threshold(float full_vels[PIC_X][PIC_Y][2],float Ix[PIC_X][PIC_Y],float Iy[
 		printf("Threshold: %f\n",tau);
 		printf("%d velocities thresholded\n",count);
 
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	threshold_time+=end_time-launch_time;
 }
 
 float fmin(float x,float y)
 	//float x,y;
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	fmin_count++;
 
 	if(x<y) {
-		float end_time=omp_get_wtime();
+		double end_time=omp_get_wtime();
 		fmin_time+=end_time-launch_time;
 		return(x);
 	}
 	else {
-		float end_time=omp_get_wtime();
+		double end_time=omp_get_wtime();
 		fmin_time+=end_time-launch_time;
 		return(y);
 	}	
@@ -1392,7 +1382,7 @@ float fmin(float x,float y)
 void rearrange(float v1[PIC_X][PIC_Y][2],float v2[PIC_X][PIC_Y][2])
 	//float v1[PIC_X][PIC_Y][2],v2[PIC_X][PIC_Y][2];
 {
-	float launch_time=omp_get_wtime();
+	double launch_time=omp_get_wtime();
 	rearrange_count++;
 
 	int i,j;
@@ -1410,7 +1400,7 @@ void rearrange(float v1[PIC_X][PIC_Y][2],float v2[PIC_X][PIC_Y][2])
 				v2[i][j][1] = NO_VALUE;
 			}
 		}
-	float end_time=omp_get_wtime();
+	double end_time=omp_get_wtime();
 	rearrange_time+=end_time-launch_time;
 }
 

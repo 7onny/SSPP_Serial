@@ -60,7 +60,7 @@ float norm(float v[],int n);
 float fmin(float x,float y);
 
 //Utility functions
-void print_times(float total_elapsed_time);
+void print_times(double total_elapsed_time);
 void print_plot_data();
 
 // Global variables
