@@ -76,18 +76,3 @@ extern float temp_vels[PIC_X][PIC_Y][2];
 extern int pic_x,pic_y,pic_t,THRESHOLD,STANDARD,BINARY,int_size_x,int_size_y;
 extern float actual_x,actual_y,size_x,size_y,offset_x,offset_y;
 extern int startx,starty,endx,endy,step,WRITE_SMOOTH;
-
-// Global variables
-//unsigned char inpic[PIC_T][PIC_X][PIC_Y];
-//unsigned char pic[FIVE][PIC_X][PIC_Y];
-//float floatpic[FIVE][PIC_X][PIC_Y];
-//unsigned header[HEAD];
-//float alpha;
-//float Ix[PIC_X][PIC_Y],Iy[PIC_X][PIC_Y];
-//float It[PIC_X][PIC_Y],full_vels[PIC_X][PIC_Y][2];
-//float correct_vels[PIC_X][PIC_Y][2],full_vels1[PIC_X][PIC_Y][2]; 
-//float temp_vels[PIC_X][PIC_Y][2];
-//int pic_x,pic_y,pic_t,THRESHOLD,STANDARD,BINARY,int_size_x,int_size_y;
-//float actual_x,actual_y,size_x,size_y,offset_x,offset_y;
-//int startx,starty,endx,endy,step,WRITE_SMOOTH;
-

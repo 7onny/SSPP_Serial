@@ -9,31 +9,41 @@
 #include <fstream>
 using namespace std;
 
-#define MAX_THREADS 4 //Create one thread per processor
+#define MAX_THREADS 1 //Create one thread per processor
 
-UINT calc_statistics_proc(LPVOID );
+extern HANDLE events[MAX_THREADS];
+
+//Declaration of global timers
+extern double vels_avg_time;
+extern double calc_vels_time;
+extern double rearrange_time;
+extern double calc_statistics_time;
+//Declaration of global call counters
+extern int vels_avg_count;
+extern int calc_vels_count;
+extern int rearrange_count;
+extern int calc_statistics_count;
+
+UINT thread_proc(LPVOID );
 
 typedef struct{
 	CCriticalSection pcs;
-	int *threadID;
 	int current_id;
-	int n;
-	int pic_x;
-	int pic_y;
-	int size_x;
-	int size_y;
-	float (*correct_vels)[PIC_Y][2]; //Assign first dimension pointer to existing data
-	float *min_angle;
-	float *max_angle;
-	float (*full_vels)[PIC_Y][2];
-	float *ave_error;
-	float *density;
-	float *st_dev;
-	//local variables
-	int full_count;
-	int no_full_count;
-	int total_count;
-	float sumX2;
+	int numpass;
+	int finish_counter; //Used to control all threads reaching a given point
+	//Additional necessary variables
+	int offset,full_count, no_full_count, total_count;
+	float ave_error,min_angle,max_angle,sumX2,st_dev,density;
+} threadData;
 
-} calc_statistics_data;
+//Parallelized functions
+void MT_vels_avg(float vels[PIC_X][PIC_Y][2],float ave[PIC_X][PIC_Y][2], int id);
+void MT_calc_vels(float vels[PIC_X][PIC_Y][2],float vels1[PIC_X][PIC_Y][2],float Ex[PIC_X][PIC_Y],float Ey[PIC_X][PIC_Y],float Et[PIC_X][PIC_Y], int id);
+void MT_rearrange(float v1[PIC_X][PIC_Y][2],float v2[PIC_X][PIC_Y][2], int id);
+void MT_calc_statistics(float correct_vels[PIC_X][PIC_Y][2],int int_size_x,int int_size_y,float full_vels[PIC_X][PIC_Y][2],
+						int pic_x,int pic_y,int n,float *ave_error,float *st_dev,float *density,float *min_angle,float *max_angle, int id, LPVOID data);
 
+//Utility functions
+void createEvents();
+void closeEvents();
+void resetThreadData(LPVOID data);

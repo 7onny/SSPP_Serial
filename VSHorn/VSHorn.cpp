@@ -34,7 +34,6 @@ int startx,starty,endx,endy,step,WRITE_SMOOTH;
 
 
 //---------------------Global Variables----------------------
-//float launch_time, end_time;
 
 double calcIx_time = 0;
 double calcIy_time = 0;
@@ -85,13 +84,14 @@ int fmin_count=0;
 int rearrange_count=0;
 
 HANDLE handles[MAX_THREADS];
-CWinThread* threads[MAX_THREADS];
+HANDLE events[MAX_THREADS];
+
 
 
 //---------------------------------------------------
 
 CWinApp theApp;
-UINT mythreadProc(LPVOID);
+
 
 /*********************************************************************/
 /*   Main program 						     */
@@ -102,7 +102,11 @@ int main(int argc, char **argv)
 	double program_start_time, program_finish_time;
 	program_start_time=omp_get_wtime();
 	//-----------------------------------------------------------------------------
+
+	CWinThread* threads[MAX_THREADS];
+	threadData *td=(threadData*) new threadData;
 	
+
 	int fd,fdf,offset,size,start,end,middle,i,j,num;
 	int fd_correct,no_bytes,numpass,time;
 	float ave_error,st_dev,density,min_angle,max_angle,sigma,tau;
@@ -349,35 +353,36 @@ int main(int argc, char **argv)
 		print_ders(Ix,Iy,It);
 	}
 
-	for(i=0;i<PIC_X;i++)
+	for(i=0;i<PIC_X;i++){
 		for(j=0;j<PIC_Y;j++)
 		{
 			full_vels[i][j][0] = full_vels[i][j][1] = 0.0;
 			full_vels1[i][j][0] = full_vels1[i][j][1] = 0.0;
 		}
+	}
+	/* -------------Perform iterations--------------- */
+	//Initial Set up
+	td->offset=offset;
+	td->current_id=0;
+	td->numpass=numpass;
+	resetThreadData(td);
 
-		/* Perform iterations */
-		for(i=0;i<numpass;i+=2) 
-		{
-			printf("%3dth iteration\n",i);
-			fflush(stdout);
-			calc_vels(full_vels,full_vels1,Ix,Iy,It);
-			printf("The improvement: %f\n",difference(full_vels,full_vels1,pic_x,pic_y));
-			fflush(stdout);
-			rearrange(full_vels1,temp_vels);
-			calc_statistics(correct_vels,int_size_x,int_size_y,temp_vels,
-				pic_x,pic_y,2*offset,&ave_error,&st_dev,&density,&min_angle,&max_angle);
-			printf("Error: %f St Dev: %f Density: %f\n",ave_error,st_dev,density);
-			fflush(stdout);
-			printf("%3dth iteration\n",i+1);
-			calc_vels(full_vels1,full_vels,Ix,Iy,It);
-			printf("The improvement: %f\n",difference(full_vels,full_vels1,pic_x,pic_y));
-			rearrange(full_vels,temp_vels);
-			calc_statistics(correct_vels,int_size_x,int_size_y,temp_vels,
-				pic_x,pic_y,2*offset,&ave_error,&st_dev,&density,&min_angle,&max_angle);
-			printf("Error: %f St Dev: %f Density: %f\n",ave_error,st_dev,density);
-			fflush(stdout);
-		}
+	//Create Threads
+	printf("Creating threads..\n");
+	for(int i=0; i<MAX_THREADS; ++i){
+		//Create threads suspended, in order to close them manually and control when they finish
+		threads[i]=(AfxBeginThread(thread_proc,td,THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, 0));
+		threads[i]->m_bAutoDelete=FALSE;
+		handles[i]=threads[i]->m_hThread;
+		threads[i]->ResumeThread();
+	}
+
+	//Synchronize threads
+	WaitForMultipleObjects(MAX_THREADS,handles,TRUE,INFINITE);
+	for(int i=0; i<MAX_THREADS; ++i){
+		threads[i]->Delete();
+	}
+
 		if(THRESHOLD) threshold(full_vels,Ix,Iy,tau,pic_x,pic_y);
 
 		if((fdf=_creat(full_name,_S_IREAD | _S_IWRITE))!=NULL)
@@ -389,11 +394,11 @@ int main(int argc, char **argv)
 		if(strcmp(correct_filename,"unknown")!=0)
 		{
 			calc_statistics(correct_vels,int_size_x,int_size_y,full_vels,
-				pic_x,pic_y,2*offset,&ave_error,&st_dev,&density,&min_angle,&max_angle);
+				pic_x,pic_y,2*(td->offset),&(td->ave_error),&(td->st_dev),&(td->density),&(td->min_angle),&(td->max_angle));
 			printf("\n\nComputed Statistics\n");
-			printf("Error: %f St Dev: %f\n",ave_error,st_dev);
-			printf("Density: %f\n",density);
-			printf("Minimum angle error: %f Maximum angle error: %f\n",min_angle,max_angle);
+			printf("Error: %f St Dev: %f\n",td->ave_error,td->st_dev);
+			printf("Density: %f\n",td->density);
+			printf("Minimum angle error: %f Maximum angle error: %f\n",td->min_angle,td->max_angle);
 		}
 		fflush(stdout);
 
@@ -607,7 +612,7 @@ void vels_avg(float vels[PIC_X][PIC_Y][2],float ave[PIC_X][PIC_Y][2])
 	vels_avg_count++;
 
 	int i,j;
-	for(i=startx;i<endx;i++)
+	for(i=startx;i<endx;i+=MAX_THREADS)
 		for(j=starty;j<endy;j++)
 		{
 			ave[i][j][0] = (vels[i-1][j][0]+vels[i][j+1][0]+
@@ -1188,77 +1193,60 @@ void calc_statistics(float correct_vels[PIC_X][PIC_Y][2],int int_size_x,int int_
 					 //float correct_vels[PIC_X][PIC_Y][2],*min_angle,*max_angle;
 					 //int n,pic_x,pic_y,int_size_x,int_size_y;
 {
-	calc_statistics_data *cs_data=new calc_statistics_data;
 	double launch_time=omp_get_wtime();
 	calc_statistics_count++;
-	
-	float temp;
-	
+
+	int full_count,no_full_count,i,j,a,b,total_count;
+	float sumX2,temp,uva[2],uve[2];
+
+	full_count = no_full_count = total_count = 0;
+	sumX2 = 0.0;
 	(*min_angle) = HUGE;
 	(*max_angle) = -HUGE;
 	(*ave_error) = (*st_dev) = (*density) = 0.0;
-
-	//Shared Memory allocation
-	cs_data->threadID=new int[MAX_THREADS];
-	cs_data->current_id=0;	//thread IDs set to range from 0 to MAX_THREADS-1
-	cs_data->n=n;
-	cs_data->pic_x=pic_x;
-	cs_data->pic_y=pic_y;
-	cs_data->size_x=size_x;
-	cs_data->size_y=size_y;
-	cs_data->correct_vels=correct_vels;
-	cs_data->min_angle=min_angle;
-	cs_data->max_angle=max_angle;
-	cs_data->full_vels=full_vels;
-	cs_data->ave_error=ave_error;
-	cs_data->density=density;
-	cs_data->st_dev=st_dev;
-	cs_data->full_count=0;
-	cs_data->no_full_count=0;
-	cs_data->total_count=0;
-	cs_data->sumX2=0.0;
-
-	//Launch worker threads
-	for(int i=0; i<MAX_THREADS; ++i){
-		threads[i]=(AfxBeginThread(calc_statistics_proc,cs_data,THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, 0));
-		cs_data->threadID[i]=(int)threads[i]->m_nThreadID;
-		threads[i]->m_bAutoDelete=FALSE;
-		handles[i]=threads[i]->m_hThread;
-		threads[i]->ResumeThread();
-	}
-
-	//Synchronize threads
-	WaitForMultipleObjects(MAX_THREADS,handles,TRUE,INFINITE);
-	for(int i=0; i<MAX_THREADS; ++i){
-		threads[i]->Delete();
-	}
-
-	//Final
-	if(cs_data->full_count != 0) (*ave_error) = (*ave_error)/cs_data->full_count;
-	else (*ave_error) = 0.0;
-	if(cs_data->full_count > 1) 
+	for(i=n;i<pic_x-n;i++)
 	{
-		temp = fabs((cs_data->sumX2 - cs_data->full_count*(*ave_error)*(*ave_error))/(cs_data->full_count-1));
+		for(j=n;j<pic_y-n;j++)
+		{
+			if(full_vels[i][j][0] != NO_VALUE && full_vels[i][j][1] != NO_VALUE)
+			{
+				full_count++;
+				uve[0] = full_vels[i][j][0]; uve[1] = full_vels[i][j][1];
+				uva[0] = correct_vels[i][j][0]; uva[1] = correct_vels[i][j][1];
+				temp = PsiER(uve,uva);
+				(*ave_error) += temp;
+				sumX2 += temp*temp;
+				if(temp < (*min_angle)) (*min_angle) = temp;
+				if(temp > (*max_angle)) (*max_angle) = temp;
+			}
+			else no_full_count++;
+			total_count++;
+		}
+	}
+
+	if(full_count != 0) (*ave_error) = (*ave_error)/full_count;
+	else (*ave_error) = 0.0;
+	if(full_count > 1) 
+	{
+		temp = fabs((sumX2 - full_count*(*ave_error)*(*ave_error))/(full_count-1));
 		(*st_dev) = sqrt(temp);
 	}
 	else (*st_dev) = 0.0;
-	(*density) = cs_data->full_count*100.0/(cs_data->total_count*1.0);
+	(*density) = full_count*100.0/(total_count*1.0);
 
 	if((*ave_error) == 0.0) { (*min_angle) = (*max_angle) = 0.0; }
 
 	if(FALSE)
 	{
 		printf("\nIn calc_statistics\n");
-		printf("%d full velocities\n",cs_data->full_count);
-		printf("%d positons without full velocity\n",cs_data->no_full_count);
-		printf("%d positions in total\n",cs_data->total_count);
+		printf("%d full velocities\n",full_count);
+		printf("%d positons without full velocity\n",no_full_count);
+		printf("%d positions in total\n",total_count);
 		fflush(stdout);
 	}
 
 	double end_time=omp_get_wtime();
 	calc_statistics_time+=end_time-launch_time;
-
-	if(cs_data) delete cs_data;
 }
 
 /************************************************************
